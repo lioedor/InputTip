@@ -241,6 +241,11 @@ switch_CN(pressKey := "", *) {
         SendInput("{CapsLock}")
     }
     Sleep(50)
+
+    if (!isCN()) {
+        IME.SetInputMode(1)
+    }
+/**
     if (switchStatus) {
         if (!isCN()) {
             SendInput(switchStatusList[switchStatus])
@@ -248,6 +253,7 @@ switch_CN(pressKey := "", *) {
     } else {
         IME.SetInputMode(1)
     }
+*/
 }
 /**
  * 将输入法状态切换为英文
@@ -271,6 +277,11 @@ switch_EN(pressKey := "", *) {
         SendInput("{CapsLock}")
     }
     Sleep(50)
+
+    if (isCN()) {
+        IME.SetInputMode(0)
+    }
+/**
     if (switchStatus) {
         if (isCN()) {
             SendInput(switchStatusList[switchStatus])
@@ -278,6 +289,7 @@ switch_EN(pressKey := "", *) {
     } else {
         IME.SetInputMode(0)
     }
+*/
 }
 /**
  * 将输入法状态切换为大写锁定
