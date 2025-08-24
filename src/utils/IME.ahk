@@ -192,6 +192,33 @@ isCN() {
     return IME.GetInputMode()
 }
 
+
+; 判断两个按键/热键写法是否表示同一个物理键
+equalHotkeyKey(a, b) {
+    return keySig(extractBaseKey(a)) = keySig(extractBaseKey(b))
+}
+
+; 从热键串里提取“基础键名”，去掉修饰符和 Up/Down 等
+extractBaseKey(s) {
+    s := Trim(s)
+    ; 1) 去掉热键前缀选项/修饰符：~ * $ < > 以及 ^ ! + #
+    s := RegExReplace(s, "^[~*$<>^!#+]+")
+    ; 2) 去掉尾部的 Up/Down（大小写不敏感）
+    s := RegExReplace(s, "i)\s+(up|down)$", "")
+    ; 3) 统一 Ctrl 的写法（Control -> Ctrl），去空格
+    s := StrReplace(s, "Control", "Ctrl")
+    s := RegExReplace(s, "\s+", "")
+    return s
+}
+
+; 生成用于比较的签名：VK:SC
+keySig(k) {
+    ; GetKeyVK/SC 对大小写不敏感，能接受 LCtrl/LControl 等别名
+    vk := GetKeyVK(k)
+    sc := GetKeySC(k)
+    return vk ":" sc
+}
+
 /**
  * 将输入法状态切换为中文
  * @param pressKey 触发此函数的按键，如果非按键触发，则为空
@@ -205,6 +232,11 @@ switch_CN(pressKey := "", *) {
     if (pressKey && InStr(hotkey_CN, "shift") && A_TimeIdleKeyboard < 200 && !InStr(A_PriorKey, "shift")) {
         return
     }
+
+    if (!equalHotkeyKey(A_PriorKey, hotkey_CN)) {
+        return
+    }
+
     if (GetKeyState("CapsLock", "T")) {
         SendInput("{CapsLock}")
     }
@@ -230,6 +262,11 @@ switch_EN(pressKey := "", *) {
     if (pressKey && InStr(hotkey_EN, "shift") && A_TimeIdleKeyboard < 200 && !InStr(A_PriorKey, "shift")) {
         return
     }
+
+    if (!equalHotkeyKey(A_PriorKey, hotkey_EN)) {
+        return
+    }
+    
     if (GetKeyState("CapsLock", "T")) {
         SendInput("{CapsLock}")
     }
